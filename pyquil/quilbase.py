@@ -60,7 +60,7 @@ def format_matrix_element(element):
 
     :param element: {int, long, float, complex, str} The parameterized element to format.
     """
-    if isinstance(element, (int, long, float, complex)):
+    if isinstance(element, (int, float, complex)):
         return format_parameter(element)
     elif isinstance(element, str):
         return element
@@ -76,7 +76,7 @@ def format_parameter(element):
     """
     if isinstance(element, (int, float)):
         return repr(element)
-    elif isinstance(element, long):
+    elif isinstance(element, int):
         return repr(element)[0:-1]
     elif isinstance(element, complex):
         r = element.real
@@ -575,7 +575,7 @@ class Instr(AbstractInstruction):
     """
 
     def __init__(self, op, params, args):
-        if not isinstance(op, (str, unicode)):
+        if not isinstance(op, str):
             raise TypeError("op must be a string")
         self.operator_name = op
         self.parameters = params

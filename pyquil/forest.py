@@ -18,7 +18,7 @@
 Module for facilitating connections to the QVM / QPU.
 """
 
-from __future__ import print_function
+
 from requests.packages.urllib3.util import Retry
 from requests.adapters import HTTPAdapter
 import requests
@@ -186,12 +186,12 @@ def _octet_bits(o):
     :return: The bits as a list in LSB-to-MSB order.
     :rtype: list
     """
-    if not isinstance(o, (int, long)):
+    if not isinstance(o, int):
         raise TypeError("o should be an int or long")
     if not (0 <= o <= 255):
         raise ValueError("o should be between 0 and 255 inclusive")
     bits = [0] * 8
-    for i in xrange(8):
+    for i in range(8):
         if 1 == o & 1:
             bits[i] = 1
         o = o >> 1
@@ -268,7 +268,7 @@ class Connection(object):
 
         if random_seed is None:
             self.random_seed = None
-        elif isinstance(random_seed, (int, long)) and random_seed >= 0:
+        elif isinstance(random_seed, int) and random_seed >= 0:
             self.random_seed = random_seed
         else:
             raise TypeError("random_seed should be None or a non-negative int or long.")
@@ -339,20 +339,20 @@ class Connection(object):
         def recover_complexes(coef_string):
             num_octets = len(coef_string)
             num_addresses = len(classical_addresses)
-            num_memory_octets = _round_to_next_multiple(num_addresses, 8) / 8
-            num_wavefunction_octets = num_octets - num_memory_octets
+            num_memory_octets = int(_round_to_next_multiple(num_addresses, 8) / 8) # cast to int -- range cannot use float
+            num_wavefunction_octets = int(num_octets) - num_memory_octets
 
             # Parse the classical memory
             mem = []
-            for i in xrange(num_memory_octets):
+            for i in range(num_memory_octets):
                 octet = struct.unpack('B', coef_string[i])[0]
                 mem.extend(_octet_bits(octet))
 
             mem = mem[0:num_addresses]
 
             # Parse the wavefunction
-            wf = np.zeros(num_wavefunction_octets / OCTETS_PER_COMPLEX_DOUBLE, dtype=np.cfloat)
-            for i, p in enumerate(xrange(num_memory_octets, num_octets, OCTETS_PER_COMPLEX_DOUBLE)):
+            wf = np.zeros(int(num_wavefunction_octets / OCTETS_PER_COMPLEX_DOUBLE), dtype=np.cfloat)
+            for i, p in enumerate(range(num_memory_octets, num_octets, OCTETS_PER_COMPLEX_DOUBLE)):
                 re_be = coef_string[p: p + OCTETS_PER_DOUBLE_FLOAT]
                 im_be = coef_string[p + OCTETS_PER_DOUBLE_FLOAT: p + OCTETS_PER_COMPLEX_DOUBLE]
                 re = struct.unpack('>d', re_be)[0]
@@ -390,7 +390,7 @@ class Connection(object):
 
         payload = {'type': TYPE_EXPECTATION,
                    'state-preparation': prep_prog.out(),
-                   'operators': map(lambda x: x.out(), operator_programs)}
+                   'operators': [x.out() for x in operator_programs]}
 
         add_rng_seed_to_payload(payload, self.random_seed)
 

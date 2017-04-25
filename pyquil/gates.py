@@ -80,10 +80,10 @@ def _make_gate(name, num_qubits, num_params=0):
                                                                                   len(qubits),
                                                                                   num_qubits)
                 )
-            return Gate(name, params, map(unpack_qubit, qubits))
+            return Gate(name, params, list(map(unpack_qubit, qubits)))
 
         if len(stray_qubits) == num_qubits:
-            return Gate(name, params, map(unpack_qubit, stray_qubits))
+            return Gate(name, params, list(map(unpack_qubit, stray_qubits)))
         else:
             return ctor
 
